@@ -35,5 +35,7 @@ private:
 	void Released();
 	void FindPhysicsComponent();
 	void SetupInputComponent();
+	FVector LineTraceEndPoint();
+	FVector LineTraceStartPoint();
 	const FHitResult GetFirstPhysicsBodyInReach();
 };
