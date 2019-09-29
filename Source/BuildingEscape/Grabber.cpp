@@ -5,6 +5,7 @@
 #include "Engine/EngineBaseTypes.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values for this component's properties
@@ -56,14 +57,20 @@ void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"));
 	//Try and reach actors with physics body collision channel set
-	GetFirstPhysicsBodyInReach();
-	//TODO If we hit something then attach a physics handle
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+	///If we hit something then attach a physics handle
+	if (ActorHit)
+	{
+		PhysicsHandle->GrabComponent(ComponentToGrab, NAME_None, ComponentToGrab->GetOwner()->GetActorLocation(), true);
+	}
 }
 //Drop objects
 void UGrabber::Released()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab released"));
-	//TODO Release Physics handle
+	PhysicsHandle->ReleaseComponent();
 }
 //Get Nearest Physics Body
 const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
@@ -88,7 +95,7 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Object: %s"), *(ActorHit->GetName()));
 	}
-	return FHitResult();
+	return Hit;
 }
 
 // Called every frame
@@ -96,7 +103,20 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Get player view point
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+		
+	//Set Player Max Reach Position
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+
 	//if physics handle attached
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+	
 		//Move the object we are holding
 }
 
