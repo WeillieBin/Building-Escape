@@ -33,8 +33,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FDoorEvent OnClose;
 
-	void OpenDoor();
-	void CloseDoor();
 	float TotalMass();
 
 private:
