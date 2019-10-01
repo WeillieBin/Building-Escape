@@ -21,16 +21,19 @@ void UOpenDoor::BeginPlay()
 }
 void UOpenDoor::OpenDoor()
 {
+	if (!Owner) {return; }
 	Owner->SetActorRotation(FRotator(0.f, OpenAngle, 0.f));
 }
 void UOpenDoor::CloseDoor()
 {
+	if (!Owner) {return; }
 	Owner->SetActorRotation(FRotator(0.f, -90.f, 0.f));
 }
 float UOpenDoor::TotalMass()
 {
 	float TotalMass = 0.f;
 	TArray<AActor*> OverlappingActors;
+	if (!PressurePlate) {return TotalMass; }
 	PressurePlate->GetOverlappingActors(OverlappingActors);
 
 	for (const auto* Actor : OverlappingActors)
